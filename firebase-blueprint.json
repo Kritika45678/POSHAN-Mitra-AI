@@ -1,0 +1,301 @@
+{
+  "entities": {
+    "WorkerPublicProfile": {
+      "title": "WorkerPublicProfile",
+      "description": "Non-PII display profile for an Anganwadi worker.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the worker.",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of the Anganwadi worker.",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "centerCode": {
+          "type": "string",
+          "description": "Anganwadi center code or ward label.",
+          "maxLength": 80
+        },
+        "photoUrl": {
+          "type": "string",
+          "description": "Profile picture URL or compressed data URL.",
+          "maxLength": 200000
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["uid", "displayName", "createdAt", "updatedAt"]
+    },
+    "WorkerPrivateProfile": {
+      "title": "WorkerPrivateProfile",
+      "description": "Private PII profile fields for an Anganwadi worker (email, phone, gender, address).",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "Firebase Auth UID of the worker.",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Worker contact email address.",
+          "maxLength": 160
+        },
+        "phone": {
+          "type": "string",
+          "description": "Worker mobile phone number.",
+          "maxLength": 30
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["female", "male", "other", ""],
+          "description": "Worker gender.",
+          "maxLength": 20
+        },
+        "address": {
+          "type": "string",
+          "description": "Worker residential or center street address.",
+          "maxLength": 300
+        },
+        "villageWard": {
+          "type": "string",
+          "description": "Village or ward name.",
+          "maxLength": 120
+        },
+        "districtState": {
+          "type": "string",
+          "description": "District and state.",
+          "maxLength": 120
+        },
+        "pincode": {
+          "type": "string",
+          "description": "Postal PIN code.",
+          "maxLength": 16
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server update timestamp."
+        }
+      },
+      "required": ["uid", "email", "createdAt", "updatedAt"]
+    },
+    "ChildNutritionRecord": {
+      "title": "ChildNutritionRecord",
+      "description": "Unified nutrition, attendance, ration, health, and household signals for a single child.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Child document ID.",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "maxLength": 128
+        },
+        "ownerId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the managing Anganwadi worker.",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "nameHi": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "nameEn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "motherNameHi": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "motherNameEn": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 120
+        },
+        "ward": {
+          "type": "string",
+          "maxLength": 120
+        },
+        "ageMonths": {
+          "type": "number"
+        },
+        "gender": {
+          "type": "string",
+          "enum": ["girl", "boy"]
+        },
+        "phone": {
+          "type": "string",
+          "maxLength": 30
+        },
+        "attendanceDays": {
+          "type": "number"
+        },
+        "totalDays": {
+          "type": "number"
+        },
+        "recentAbsenceStreak": {
+          "type": "number"
+        },
+        "rationStatus": {
+          "type": "string",
+          "enum": ["collected", "partial", "missed"]
+        },
+        "weightKg": {
+          "type": "number"
+        },
+        "prevWeightKg": {
+          "type": "number"
+        },
+        "heightCm": {
+          "type": "number"
+        },
+        "muacMm": {
+          "type": "number"
+        },
+        "growthHistory": {
+          "type": "array",
+          "description": "Monthly weight and height measurements."
+        },
+        "recentIllness": {
+          "type": "array",
+          "description": "Recent illness flags."
+        },
+        "immunizationUpToDate": {
+          "type": "boolean"
+        },
+        "householdFactors": {
+          "type": "array",
+          "description": "Household vulnerability flags."
+        },
+        "lastActionDoneAt": {
+          "type": "string",
+          "maxLength": 64
+        },
+        "followUpHistory": {
+          "type": "array",
+          "description": "Completed follow-up log entries."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "ownerId",
+        "nameHi",
+        "nameEn",
+        "motherNameHi",
+        "motherNameEn",
+        "ageMonths",
+        "gender",
+        "attendanceDays",
+        "totalDays",
+        "rationStatus",
+        "weightKg",
+        "prevWeightKg",
+        "heightCm",
+        "muacMm",
+        "immunizationUpToDate",
+        "createdAt",
+        "updatedAt"
+      ]
+    },
+    "CommunityFeedback": {
+      "title": "CommunityFeedback",
+      "description": "Publicly readable non-PII user feedback with star rating and author name only.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9_\\-]+$",
+          "maxLength": 128
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the submitting user.",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Public display name only (no email, phone, or address).",
+          "minLength": 1,
+          "maxLength": 80
+        },
+        "rating": {
+          "type": "integer",
+          "description": "Star rating from 1 to 5."
+        },
+        "comment": {
+          "type": "string",
+          "description": "Written user feedback message.",
+          "minLength": 2,
+          "maxLength": 600
+        },
+        "visibility": {
+          "type": "string",
+          "enum": ["public"],
+          "description": "Public visibility marker for shared community feedback."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": ["id", "authorId", "authorName", "rating", "comment", "visibility", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/WorkerPublicProfile" },
+      "description": "Non-PII worker display profile owned by the signed-in user."
+    },
+    "/users/{userId}/private/{docId}": {
+      "schema": { "$ref": "#/entities/WorkerPrivateProfile" },
+      "description": "Private PII worker profile (email, mobile, gender, address) restricted strictly to the owner."
+    },
+    "/users/{userId}/children/{childId}": {
+      "schema": { "$ref": "#/entities/ChildNutritionRecord" },
+      "description": "Child nutrition records and follow-up history managed by the signed-in Anganwadi worker."
+    },
+    "/feedbacks/{feedbackId}": {
+      "schema": { "$ref": "#/entities/CommunityFeedback" },
+      "description": "Shared non-PII user feedback visible to all signed-in users without exposing any contact details."
+    }
+  }
+}

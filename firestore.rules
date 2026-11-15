@@ -1,0 +1,262 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default-Deny Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidPublicProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'displayName', 'centerCode', 'photoUrl', 'createdAt', 'updatedAt'])
+        && data.uid is string && data.uid == userId && data.uid == request.auth.uid
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 120
+        && (!('centerCode' in data) || (data.centerCode is string && data.centerCode.size() <= 80))
+        && (!('photoUrl' in data) || (data.photoUrl is string && data.photoUrl.size() <= 200000));
+    }
+
+    function isValidPrivateProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'email', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'uid',
+          'email',
+          'phone',
+          'gender',
+          'address',
+          'villageWard',
+          'districtState',
+          'pincode',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.uid is string && data.uid == userId && data.uid == request.auth.uid
+        && data.email is string && data.email.size() <= 160
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 30))
+        && (!('gender' in data) || (data.gender in ['female', 'male', 'other', '']))
+        && (!('address' in data) || (data.address is string && data.address.size() <= 300))
+        && (!('villageWard' in data) || (data.villageWard is string && data.villageWard.size() <= 120))
+        && (!('districtState' in data) || (data.districtState is string && data.districtState.size() <= 120))
+        && (!('pincode' in data) || (data.pincode is string && data.pincode.size() <= 16));
+    }
+
+    function isValidChildRecord(data, userId, childId) {
+      return data.keys().hasAll([
+          'id',
+          'ownerId',
+          'nameHi',
+          'nameEn',
+          'motherNameHi',
+          'motherNameEn',
+          'ageMonths',
+          'gender',
+          'attendanceDays',
+          'totalDays',
+          'rationStatus',
+          'weightKg',
+          'prevWeightKg',
+          'heightCm',
+          'muacMm',
+          'immunizationUpToDate',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'ownerId',
+          'nameHi',
+          'nameEn',
+          'motherNameHi',
+          'motherNameEn',
+          'ward',
+          'ageMonths',
+          'gender',
+          'phone',
+          'attendanceDays',
+          'totalDays',
+          'recentAbsenceStreak',
+          'rationStatus',
+          'weightKg',
+          'prevWeightKg',
+          'heightCm',
+          'muacMm',
+          'growthHistory',
+          'recentIllness',
+          'immunizationUpToDate',
+          'householdFactors',
+          'lastActionDoneAt',
+          'followUpHistory',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.id is string && data.id == childId
+        && data.ownerId is string && data.ownerId == userId && data.ownerId == request.auth.uid
+        && data.nameHi is string && data.nameHi.size() >= 1 && data.nameHi.size() <= 120
+        && data.nameEn is string && data.nameEn.size() >= 1 && data.nameEn.size() <= 120
+        && data.motherNameHi is string && data.motherNameHi.size() >= 1 && data.motherNameHi.size() <= 120
+        && data.motherNameEn is string && data.motherNameEn.size() >= 1 && data.motherNameEn.size() <= 120
+        && (!('ward' in data) || (data.ward is string && data.ward.size() <= 120))
+        && data.ageMonths is number && data.ageMonths >= 0 && data.ageMonths <= 72
+        && data.gender in ['girl', 'boy']
+        && (!('phone' in data) || (data.phone is string && data.phone.size() <= 30))
+        && data.attendanceDays is number && data.attendanceDays >= 0 && data.attendanceDays <= 31
+        && data.totalDays is number && data.totalDays >= 1 && data.totalDays <= 31
+        && (!('recentAbsenceStreak' in data) || (data.recentAbsenceStreak is number && data.recentAbsenceStreak >= 0 && data.recentAbsenceStreak <= 60))
+        && data.rationStatus in ['collected', 'partial', 'missed']
+        && data.weightKg is number && data.weightKg >= 1 && data.weightKg <= 40
+        && data.prevWeightKg is number && data.prevWeightKg >= 1 && data.prevWeightKg <= 40
+        && data.heightCm is number && data.heightCm >= 30 && data.heightCm <= 150
+        && data.muacMm is number && data.muacMm >= 60 && data.muacMm <= 220
+        && data.immunizationUpToDate is bool
+        && (!('growthHistory' in data) || (data.growthHistory is list && data.growthHistory.size() <= 24))
+        && (!('recentIllness' in data) || (data.recentIllness is list && data.recentIllness.size() <= 6 && data.recentIllness.hasOnly(['diarrhea', 'fever', 'cough', 'appetite_loss'])))
+        && (!('householdFactors' in data) || (data.householdFactors is list && data.householdFactors.size() <= 6 && data.householdFactors.hasOnly(['food_shortage', 'migration', 'mother_unwell', 'missed_ifa'])))
+        && (!('lastActionDoneAt' in data) || (data.lastActionDoneAt is string && data.lastActionDoneAt.size() <= 64))
+        && (!('followUpHistory' in data) || (data.followUpHistory is list && data.followUpHistory.size() <= 50));
+    }
+
+    function isValidFeedback(data, feedbackId) {
+      return data.keys().hasAll([
+          'id',
+          'authorId',
+          'authorName',
+          'rating',
+          'comment',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.keys().hasOnly([
+          'id',
+          'authorId',
+          'authorName',
+          'rating',
+          'comment',
+          'visibility',
+          'createdAt',
+          'updatedAt'
+        ])
+        && data.id is string && data.id == feedbackId
+        && data.authorId is string && data.authorId == request.auth.uid
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80
+        && data.rating is int && data.rating >= 1 && data.rating <= 5
+        && data.comment is string && data.comment.size() >= 2 && data.comment.size() <= 600
+        && data.visibility == 'public';
+    }
+
+    // Worker Non-PII Profile
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isOwner(userId);
+      allow create: if isValidId(userId) && isVerifiedUser() && isOwner(userId)
+        && isValidPublicProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId) && isVerifiedUser() && isOwner(userId)
+        && isValidPublicProfile(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['displayName', 'centerCode', 'photoUrl', 'updatedAt']);
+      allow delete: if false;
+
+      // Worker Private PII Profile
+      match /private/{docId} {
+        allow get: if isValidId(userId) && docId == 'profile' && isOwner(userId);
+        allow create: if isValidId(userId) && docId == 'profile' && isVerifiedUser() && isOwner(userId)
+          && isValidPrivateProfile(incoming(), userId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidId(userId) && docId == 'profile' && isVerifiedUser() && isOwner(userId)
+          && isValidPrivateProfile(incoming(), userId)
+          && incoming().uid == existing().uid
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly([
+            'email',
+            'phone',
+            'gender',
+            'address',
+            'villageWard',
+            'districtState',
+            'pincode',
+            'updatedAt'
+          ]);
+        allow delete: if false;
+      }
+
+      // Child Nutrition Records owned by the worker
+      match /children/{childId} {
+        allow get: if isValidId(userId) && isValidId(childId) && isOwner(userId);
+        allow list: if isOwner(userId) && resource.data.ownerId == request.auth.uid;
+        allow create: if isValidId(userId) && isValidId(childId) && isVerifiedUser() && isOwner(userId)
+          && isValidChildRecord(incoming(), userId, childId)
+          && incoming().createdAt == request.time
+          && incoming().updatedAt == request.time;
+        allow update: if isValidId(userId) && isValidId(childId) && isVerifiedUser() && isOwner(userId)
+          && isValidChildRecord(incoming(), userId, childId)
+          && incoming().id == existing().id
+          && incoming().ownerId == existing().ownerId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && (
+            incoming().diff(existing()).affectedKeys().hasOnly([
+              'attendanceDays',
+              'recentAbsenceStreak',
+              'rationStatus',
+              'weightKg',
+              'prevWeightKg',
+              'heightCm',
+              'muacMm',
+              'growthHistory',
+              'recentIllness',
+              'immunizationUpToDate',
+              'householdFactors',
+              'updatedAt'
+            ])
+            || incoming().diff(existing()).affectedKeys().hasOnly([
+              'lastActionDoneAt',
+              'followUpHistory',
+              'updatedAt'
+            ])
+          );
+        allow delete: if isValidId(userId) && isValidId(childId) && isVerifiedUser() && isOwner(userId);
+      }
+    }
+
+    // Shared Community Feedback (strictly non-PII: only authorName, rating, comment)
+    match /feedbacks/{feedbackId} {
+      allow get: if isValidId(feedbackId) && isSignedIn() && resource.data.visibility == 'public';
+      allow list: if isSignedIn() && resource.data.visibility == 'public';
+      allow create: if isValidId(feedbackId)
+        && isVerifiedUser()
+        && isValidFeedback(incoming(), feedbackId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(feedbackId) && isVerifiedUser() && isOwner(existing().authorId);
+    }
+  }
+}

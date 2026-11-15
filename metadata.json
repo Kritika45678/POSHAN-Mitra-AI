@@ -1,0 +1,6 @@
+{
+  "name": "Poshan Mitra Ai",
+  "description": "आंगनवाड़ी कार्यकर्ताओं के लिए बाल पोषण ट्रैकर, प्रारंभिक जोखिम पहचान और स्पष्ट फॉलो-अप मार्गदर्शन।",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
