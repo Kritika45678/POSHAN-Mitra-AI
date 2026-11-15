@@ -86,7 +86,7 @@ Produce guidance in ${lang}. Keep sentences short, respectful, and immediately a
 
   try {
     const response = await aiClient.models.generateContent({
-      model: 'gemini-4-hydrogen',
+      model: 'gemini-3.8-flash',
       contents: prompt,
       config: {
         thinkingConfig: { thinkingLevel: ThinkingLevel.LOW },
