@@ -161,7 +161,7 @@ app.post('/api/chat', async (req, res) => {
       : body.language === 'bho'
       ? 'pure, natural conversational Bhojpuri (शुद्ध भोजपुरी in Devanagari script, respectful Purvanchal/Bihar style using बा, नइखे, रउआ, खियाईं, पियाईं)'
       : 'simple conversational Hindi (Devanagari script)';
-  const selectedModel = body.fastMode ? 'gemini-3.1-flash-lite' : 'gemini-4-hydrogen';
+  const selectedModel='gemini-3.8-flash';
 
   const systemInstruction = `You are Poshan Mitra Ai (पोषण मित्र सहायक), a caring and practical ICDS / Poshan Abhiyaan advisor helping Indian Anganwadi workers (आंगनवाड़ी दीदी).
 Respond in ${langLabel}. Keep replies concise, warm, bulleted when helpful, and grounded in WHO/ICDS child nutrition, MUAC screening, ORS/Zinc for diarrhea, Take-Home Ration (THR), and locally available Indian home foods (moong dal khichdi, sattu, jaggery, peanuts, greens).
